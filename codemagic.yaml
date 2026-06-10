@@ -12,19 +12,23 @@ workflows:
     scripts:
       - name: Extract Source Code
         script: |
-          echo "Extracting project files..."
+          echo "Unzipping source code..."
           unzip -o CreatorBoostAI_SourceCode.zip
-          # Move files if they are inside a subfolder after extraction
+          
+          # अगर ज़िप के अंदर एक और फोल्डर बना है, तो उसके अंदर जाओ
           if [ -d "CreatorBoostAI_SourceCode" ]; then
-            cp -R CreatorBoostAI_SourceCode/* .
+            cd CreatorBoostAI_SourceCode
           fi
-      - name: Install dependencies
-        script: |
+          
+          # फाइल्स को सही जगह सेट करके डिपेंडेंसी इंस्टॉल करना
           yarn install
       - name: Build Android APK
         script: |
+          if [ -d "CreatorBoostAI_SourceCode" ]; then
+            cd CreatorBoostAI_SourceCode
+          fi
           npx expo export
           npx expo run:android --variant release --no-dev
     artifacts:
-      - android/app/build/outputs/apk/release/*.apk
+      - "**/android/app/build/outputs/apk/release/*.apk"
       
