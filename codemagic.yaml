@@ -10,25 +10,20 @@ workflows:
         EXPO_PUBLIC_GEMINI_API_KEY: "AQ.Ab8RN6K2ONp2ZPbrnUlYH1SVRNWfmsPn_oDTvkOYv_7_-UBq5w"
       node: latest
     scripts:
-      - name: Extract Source Code
+      - name: Extract and Setup
         script: |
-          echo "Unzipping source code..."
+          echo "Extracting code..."
           unzip -o CreatorBoostAI_SourceCode.zip
           
-          # अगर ज़िप के अंदर एक और फोल्डर बना है, तो उसके अंदर जाओ
-          if [ -d "CreatorBoostAI_SourceCode" ]; then
-            cd CreatorBoostAI_SourceCode
-          fi
+          # सीधे उस फोल्डर के अंदर की सभी फाइलों को बाहर मुख्य फोल्डर में लाना
+          cp -R creatorboost-ai/* .
           
-          # फाइल्स को सही जगह सेट करके डिपेंडेंसी इंस्टॉल करना
+          # डिपेंडेंसी इंस्टॉल करना
           yarn install
       - name: Build Android APK
         script: |
-          if [ -d "CreatorBoostAI_SourceCode" ]; then
-            cd CreatorBoostAI_SourceCode
-          fi
           npx expo export
           npx expo run:android --variant release --no-dev
     artifacts:
-      - "**/android/app/build/outputs/apk/release/*.apk"
+      - android/app/build/outputs/apk/release/*.apk
       
