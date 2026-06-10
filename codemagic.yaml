@@ -10,6 +10,14 @@ workflows:
         EXPO_PUBLIC_GEMINI_API_KEY: "AQ.Ab8RN6K2ONp2ZPbrnUlYH1SVRNWfmsPn_oDTvkOYv_7_-UBq5w"
       node: latest
     scripts:
+      - name: Extract Source Code
+        script: |
+          echo "Extracting project files..."
+          unzip -o CreatorBoostAI_SourceCode.zip
+          # Move files if they are inside a subfolder after extraction
+          if [ -d "CreatorBoostAI_SourceCode" ]; then
+            cp -R CreatorBoostAI_SourceCode/* .
+          fi
       - name: Install dependencies
         script: |
           yarn install
