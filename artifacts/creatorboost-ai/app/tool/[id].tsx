@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { RewardedAdModal } from "@/components/RewardedAdModal";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { callGemini, hasEnvApiKey } from "@/lib/gemini";
@@ -29,7 +30,7 @@ export default function ToolScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { geminiApiKey, incrementUsage, addHistoryItem, plan } = useApp();
+  const { geminiApiKey, incrementUsage, addHistoryItem, plan, canWatchRewardedAd } = useApp();
 
   const tool = TOOLS.find((t) => t.id === id);
 
@@ -39,6 +40,7 @@ export default function ToolScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
 
   if (!tool) {
     return (
@@ -70,7 +72,11 @@ export default function ToolScreen() {
 
     const canProceed = incrementUsage();
     if (!canProceed) {
-      setError("Daily limit reached. Upgrade your plan to continue.");
+      if (canWatchRewardedAd) {
+        setShowAdModal(true);
+      } else {
+        setError("Daily limit reached. Upgrade your plan for more generations.");
+      }
       return;
     }
 
@@ -270,6 +276,15 @@ export default function ToolScreen() {
           </View>
         ) : null}
       </ScrollView>
+
+      <RewardedAdModal
+        visible={showAdModal}
+        onClose={() => setShowAdModal(false)}
+        onRewarded={() => {
+          setError("");
+          setShowAdModal(false);
+        }}
+      />
     </View>
   );
 }
