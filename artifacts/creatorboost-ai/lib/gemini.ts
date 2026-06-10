@@ -1,5 +1,5 @@
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 /**
  * Returns the effective API key: prefers the key baked in from the
@@ -25,25 +25,42 @@ export async function callGemini(
     throw new Error("NO_API_KEY");
   }
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.9,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      },
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.9,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        },
+      }),
+    });
+  } catch (networkErr: any) {
+    throw new Error("NETWORK_ERROR");
+  }
 
   if (!response.ok) {
-    const err = await response.text();
-    if (response.status === 400 && err.includes("API_KEY_INVALID")) {
+    let errBody = "";
+    try {
+      errBody = await response.text();
+    } catch {}
+
+    if (
+      response.status === 400 &&
+      (errBody.includes("API_KEY_INVALID") || errBody.includes("invalid"))
+    ) {
       throw new Error("INVALID_API_KEY");
     }
-    throw new Error(`API_ERROR:${response.status}`);
+    if (response.status === 429) {
+      throw new Error("RATE_LIMITED");
+    }
+    // Surface the status + first 120 chars of body for easier debugging
+    const detail = errBody.slice(0, 120).replace(/\n/g, " ");
+    throw new Error(`API_ERROR:${response.status}:${detail}`);
   }
 
   const data = await response.json();

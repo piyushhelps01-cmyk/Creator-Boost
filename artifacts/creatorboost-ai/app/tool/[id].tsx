@@ -96,13 +96,25 @@ export default function ToolScreen() {
         output: result,
       });
     } catch (err: any) {
-      const msg = err?.message || "";
+      const msg: string = err?.message || "";
       if (msg === "NO_API_KEY" || msg === "INVALID_API_KEY") {
         setError("Invalid or missing API key. Go to Settings to update it.");
       } else if (msg === "EMPTY_RESPONSE") {
         setError("No response from AI. Try again.");
+      } else if (msg === "NETWORK_ERROR") {
+        setError("Network error — check your internet connection and try again.");
+      } else if (msg === "RATE_LIMITED") {
+        setError("Gemini API rate limit hit. Please wait a moment and try again.");
+      } else if (msg.startsWith("API_ERROR:")) {
+        // e.g. "API_ERROR:403:..." — surface the status code so it's debuggable
+        const parts = msg.split(":");
+        const status = parts[1] ?? "?";
+        const detail = parts.slice(2).join(":").trim();
+        setError(
+          `API error ${status}${detail ? ` — ${detail.slice(0, 80)}` : ""}. Check your API key in Settings.`
+        );
       } else {
-        setError("Generation failed. Check your internet and try again.");
+        setError(`Generation failed: ${msg || "Unknown error"}. Try again.`);
       }
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
