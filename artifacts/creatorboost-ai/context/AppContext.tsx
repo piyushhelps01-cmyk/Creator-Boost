@@ -44,7 +44,7 @@ const STORAGE_KEYS = {
   GEMINI_KEY: "cb_gemini_key",
 };
 
-const FREE_LIMIT = 5;
+const FREE_LIMIT = 15;
 const PREMIUM_LIMIT = 30;
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
