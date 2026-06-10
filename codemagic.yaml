@@ -12,12 +12,10 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
-          npm install -g expo-cli
-          pnpm install
+          yarn install
       - name: Build Android APK
         script: |
-          pnpm expo export
-          # Generate local android build via expo
+          npx expo export
           npx expo run:android --variant release --no-dev
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
