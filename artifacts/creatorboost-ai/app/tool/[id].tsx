@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
-import { callGemini } from "@/lib/gemini";
+import { callGemini, hasEnvApiKey } from "@/lib/gemini";
 import { TOOLS } from "@/lib/tools";
 
 export default function ToolScreen() {
@@ -63,7 +63,7 @@ export default function ToolScreen() {
       return;
     }
 
-    if (!geminiApiKey) {
+    if (!hasEnvApiKey && !geminiApiKey) {
       setError("Please add your Gemini API key in Settings.");
       return;
     }

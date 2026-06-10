@@ -1,4 +1,4 @@
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -18,6 +18,7 @@ import { ToolCard } from "@/components/ToolCard";
 import { UsageBanner } from "@/components/UsageBanner";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { hasEnvApiKey } from "@/lib/gemini";
 import {
   ADVANCED_TOOLS,
   INSTAGRAM_TOOLS,
@@ -48,9 +49,11 @@ export default function HomeScreen() {
         ? INSTAGRAM_TOOLS
         : ADVANCED_TOOLS;
 
+  const apiReady = hasEnvApiKey || !!geminiApiKey;
+
   const handleToolPress = (toolId: string, isProOnly: boolean) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (!geminiApiKey) {
+    if (!apiReady) {
       setShowApiModal(true);
       return;
     }
@@ -65,7 +68,7 @@ export default function HomeScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <GradientHeader showBranding />
 
-      {!geminiApiKey && (
+      {!apiReady && (
         <TouchableOpacity
           style={[styles.apiWarning, { backgroundColor: "#1A1A0F", borderColor: "#F59E0B" }]}
           onPress={() => setShowApiModal(true)}

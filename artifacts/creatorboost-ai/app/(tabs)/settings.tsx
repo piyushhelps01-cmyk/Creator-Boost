@@ -16,6 +16,7 @@ import { ApiKeyModal } from "@/components/ApiKeyModal";
 import { GradientHeader } from "@/components/GradientHeader";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { hasEnvApiKey } from "@/lib/gemini";
 
 interface SettingRowProps {
   icon: React.ReactNode;
@@ -121,12 +122,20 @@ export default function SettingsScreen() {
         {/* AI Configuration */}
         <SectionHeader title="AI CONFIGURATION" />
         <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow
-            icon={<MaterialCommunityIcons name="key-outline" size={20} color={colors.primary} />}
-            label="Gemini API Key"
-            value={geminiApiKey ? "••••••••" + geminiApiKey.slice(-4) : "Not set"}
-            onPress={() => setShowApiModal(true)}
-          />
+          {hasEnvApiKey ? (
+            <SettingRow
+              icon={<MaterialCommunityIcons name="key-chain" size={20} color={colors.success} />}
+              label="Gemini API Key"
+              value="Configured via environment"
+            />
+          ) : (
+            <SettingRow
+              icon={<MaterialCommunityIcons name="key-outline" size={20} color={colors.primary} />}
+              label="Gemini API Key"
+              value={geminiApiKey ? "••••••••" + geminiApiKey.slice(-4) : "Not set"}
+              onPress={() => setShowApiModal(true)}
+            />
+          )}
         </View>
 
         {/* Account */}
